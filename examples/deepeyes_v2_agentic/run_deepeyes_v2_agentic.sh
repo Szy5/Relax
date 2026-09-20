@@ -105,7 +105,7 @@ PROMPT_SET="[$(IFS=,; echo "${TRAIN_FILES[*]}")]"
 NUM_ROLLOUT="${NUM_ROLLOUT:=2000}"
 
 # Sandbox env vars propagated into every Ray worker so the per-session
-# agent process can find apptainer / search cache.
+# agent process can find apptainer / search backends.
 # SANDBOX_CONFIG_PATH is required — the agent reads it in _build_executor
 # to find the apptainer backend YAML config (image path, bind paths, etc).
 RUNTIME_ENV_JSON=$(cat <<EOF
@@ -114,6 +114,15 @@ RUNTIME_ENV_JSON=$(cat <<EOF
     "SANDBOX_BACKEND": "apptainer_jupyter",
     "SANDBOX_CONFIG_PATH": "${SCRIPT_DIR}/apptainer_env/apptainer_config.yaml",
     "DEEPEYES_V2_SEARCH_CACHE_PATHS": "${DEEPEYES_V2_SEARCH_CACHE_PATHS:-}",
+    "DEEPEYES_V2_SEARCH_BACKEND": "${DEEPEYES_V2_SEARCH_BACKEND:-}",
+    "DEEPEYES_V2_SEARCH_RETRIEVER_URL": "${DEEPEYES_V2_SEARCH_RETRIEVER_URL:-}",
+    "DEEPEYES_V2_SEARCH_TOPK": "${DEEPEYES_V2_SEARCH_TOPK:-}",
+    "DEEPEYES_V2_SEARCH_BRAVE_API_KEY": "${DEEPEYES_V2_SEARCH_BRAVE_API_KEY:-}",
+    "DEEPEYES_V2_SEARCH_BRAVE_ENDPOINT": "${DEEPEYES_V2_SEARCH_BRAVE_ENDPOINT:-}",
+    "DEEPEYES_V2_SEARCH_TRUST_ENV": "${DEEPEYES_V2_SEARCH_TRUST_ENV:-}",
+    "DEEPEYES_V2_SEARCH_TIMEOUT": "${DEEPEYES_V2_SEARCH_TIMEOUT:-}",
+    "DEEPEYES_V2_SEARCH_MAX_RETRIES": "${DEEPEYES_V2_SEARCH_MAX_RETRIES:-}",
+    "DEEPEYES_V2_SEARCH_RETRY_BUDGET": "${DEEPEYES_V2_SEARCH_RETRY_BUDGET:-}",
     "DEEPEYES_JUDGE_BASE_URL": "${DEEPEYES_JUDGE_BASE_URL:-}",
     "DEEPEYES_JUDGE_MODELS": "${DEEPEYES_JUDGE_MODELS:-}",
     "DEEPEYES_JUDGE_API_KEY": "${DEEPEYES_JUDGE_API_KEY:-}",

@@ -233,6 +233,40 @@ def test_search_timeout_returns_error(monkeypatch):
     assert search_utils.search("q") == "Error"
 
 
+def test_search_retry_budget_prevents_extra_request(monkeypatch):
+    monkeypatch.setenv("DEEPEYES_V2_SEARCH_BACKEND", "retriever")
+    monkeypatch.setenv("DEEPEYES_V2_SEARCH_RETRIEVER_URL", "http://retriever/retrieve")
+    monkeypatch.setenv("DEEPEYES_V2_SEARCH_TIMEOUT", "30")
+    monkeypatch.setenv("DEEPEYES_V2_SEARCH_MAX_RETRIES", "2")
+    monkeypatch.setenv("DEEPEYES_V2_SEARCH_RETRY_BUDGET", "1")
+
+    class FakeClock:
+        def __init__(self):
+            self.now = 0.0
+            self.sleeps: list[float] = []
+
+        def monotonic(self):
+            return self.now
+
+        def sleep(self, seconds):
+            self.sleeps.append(seconds)
+            self.now += seconds
+
+    clock = FakeClock()
+    monkeypatch.setattr(search_utils.time, "monotonic", clock.monotonic)
+    monkeypatch.setattr(search_utils.time, "sleep", clock.sleep)
+
+    def handler(method, url, kwargs):
+        clock.now = 0.95
+        raise requests.exceptions.Timeout("timed out")
+
+    session = _install_session(monkeypatch, handler)
+    assert search_utils.search("q") == "Error"
+    assert len(session.calls) == 1
+    assert session.calls[0][2]["timeout"] == pytest.approx(1.0)
+    assert clock.sleeps == [pytest.approx(0.05)]
+
+
 def test_search_bad_json_returns_error(monkeypatch):
     _retriever_env(monkeypatch)
 

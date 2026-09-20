@@ -121,9 +121,12 @@ def _request_json(
     deadline = time.monotonic() + retry_budget
     attempts = 0
     while attempts < max(1, max_retries):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
         attempts += 1
         try:
-            resp = session.request(method, url=url, timeout=timeout, **kwargs)
+            resp = session.request(method, url=url, timeout=min(timeout, remaining), **kwargs)
             if resp.status_code in _RETRYABLE_STATUS:
                 last_error = f"server error {resp.status_code}"
             else:
@@ -138,7 +141,7 @@ def _request_json(
         remaining = deadline - time.monotonic()
         if attempts >= max(1, max_retries) or remaining <= 0:
             break
-        time.sleep(min(_INITIAL_RETRY_DELAY * attempts, 5.0, max(0.01, remaining)))
+        time.sleep(min(_INITIAL_RETRY_DELAY * attempts, 5.0, remaining))
     raise RuntimeError(f"request failed after {attempts} attempts: {last_error}")
 
 
