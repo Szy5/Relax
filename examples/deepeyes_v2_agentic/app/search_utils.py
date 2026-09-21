@@ -86,7 +86,8 @@ def _env_bool(name: str, default: bool) -> bool:
 # Shared HTTP client (sync; runs inside the env's asyncio.to_thread)
 # --------------------------------------------------------------------------- #
 def _build_session(trust_env: bool) -> requests.Session:
-    """Pooled session; retries are handled explicitly in :func:`_request_json`."""
+    """Pooled session; retries are handled explicitly in
+    :func:`_request_json`."""
     session = requests.Session()
     session.trust_env = trust_env
     adapter = requests.adapters.HTTPAdapter(
@@ -112,10 +113,10 @@ def _request_json(
 ) -> Any:
     """POST/GET with explicit retry on transient failures.
 
-    Retries connection errors, timeouts and 5xx within ``retry_budget`` seconds.
-    Non-retryable failures (bad <500 status, invalid JSON) raise immediately.
-    Always raises ``RuntimeError`` on exhaustion; the caller turns it into
-    ``"Error"``.
+    Retries connection errors, timeouts and 5xx within ``retry_budget``
+    seconds. Non-retryable failures (bad <500 status, invalid JSON) raise
+    immediately. Always raises ``RuntimeError`` on exhaustion; the caller turns
+    it into ``"Error"``.
     """
     last_error: str | None = None
     deadline = time.monotonic() + retry_budget
@@ -149,7 +150,8 @@ def _request_json(
 # Backends
 # --------------------------------------------------------------------------- #
 class SearchBackend(Protocol):
-    """Produce raw search result rows; normalization + timing live in :func:`search`."""
+    """Produce raw search result rows; normalization + timing live in
+    :func:`search`."""
 
     def search(self, query: str, size: int) -> list[dict]: ...
 
@@ -309,8 +311,8 @@ def _reset_backend_cache() -> None:
 def _normalize(items: list[dict], size: int) -> list[dict]:
     """Coerce raw rows into the uniform ``{title, link, snippet, date}`` shape.
 
-    ``title`` / ``link`` are always non-null strings (the env indexes them directly);
-    ``snippet`` / ``date`` may be ``None``.
+    ``title`` / ``link`` are always non-null strings (the env indexes them
+    directly); ``snippet`` / ``date`` may be ``None``.
     """
     out: list[dict] = []
     limit = size if size and size > 0 else len(items)

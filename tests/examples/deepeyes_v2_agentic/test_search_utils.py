@@ -3,8 +3,9 @@
 
 All HTTP is stubbed; no real retrieval service or network is contacted. Covers
 the three backends (mock / retriever / brave), their adaptation to the uniform
-``{title, link, snippet, date}`` structure, and the timeout / invalid-response /
-server-error paths that must degrade to ``"Error"`` without crashing the agent.
+``{title, link, snippet, date}`` structure, and the timeout / invalid-response
+/ server-error paths that must degrade to ``"Error"`` without crashing the
+agent.
 """
 
 from __future__ import annotations
